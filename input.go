@@ -9,6 +9,10 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+var (
+	inputQuit = make(chan int, 2)
+)
+
 func initInput(fd int) error {
 	err := initKey()
 	if err != nil {
@@ -35,6 +39,9 @@ func initInput(fd int) error {
 }
 
 func cleanupInput(fd int) {
+	inputQuit <- 1
+	inputQuit <- 2
+
 	err := exitRawMode(fd)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "cleanupInput:", err)
@@ -52,28 +59,31 @@ func stdinRead(fd int) {
 	bfTmp := make([]byte, 64)
 
 	for {
-		<-sigioCh
+		select {
+		case <-sigioCh:
+			for {
+				n, err := unix.Read(fd, bfTmp)
+				if err == unix.EAGAIN || err == unix.EWOULDBLOCK {
+					break
+				}
+				if err != nil {
+					panic(err) // TODO handle error properly
+				}
+				bf = append(bf, bfTmp[:n]...)
+			}
 
-		for {
-			n, err := unix.Read(fd, bfTmp)
-			if err == unix.EAGAIN || err == unix.EWOULDBLOCK {
-				break
+			for {
+				e, n, ok := decode(bf)
+				if n > 0 {
+					bf = bf[n:]
+				}
+				if !ok {
+					break
+				}
+				evtCh <- e
 			}
-			if err != nil {
-				panic(err) // TODO handle error properly
-			}
-			bf = append(bf, bfTmp[:n]...)
-		}
-
-		for {
-			e, n, ok := decode(bf)
-			if n > 0 {
-				bf = bf[n:]
-			}
-			if !ok {
-				break
-			}
-			evtCh <- e
+		case <-inputQuit:
+			return
 		}
 	}
 }

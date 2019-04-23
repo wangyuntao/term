@@ -10,6 +10,12 @@ import (
 type Key rune
 
 const (
+	KeyF1 Key = -1 - iota
+	KeyF2
+	// TODO ...
+)
+
+const (
 	KeyCtrlA Key = 1 + iota
 	KeyCtrlB
 	KeyCtrlC
@@ -39,13 +45,8 @@ const (
 )
 
 const (
-	KeyBackspace Key = 127
-)
-
-const (
-	KeyF1 Key = -1 - iota
-	KeyF2
-	// TODO ...
+	KeyBackspace = Key(127)
+	KeyEnter     = KeyCtrlM
 )
 
 var (

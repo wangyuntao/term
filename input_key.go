@@ -7,11 +7,41 @@ import (
 	"github.com/wangyuntao/terminfo"
 )
 
-type Key int
+type Key rune
 
 const (
-	KeyF1 Key = iota
+	KeyCtrlA Key = 1 + iota
+	KeyCtrlB
+	KeyCtrlC
+	KeyCtrlD
+	KeyCtrlE
+	KeyCtrlF
+	KeyCtrlG
+	KeyCtrlH
+	KeyCtrlI
+	KeyCtrlJ
+	KeyCtrlK
+	KeyCtrlL
+	KeyCtrlM
+	KeyCtrlN
+	KeyCtrlO
+	KeyCtrlP
+	KeyCtrlQ
+	KeyCtrlR
+	KeyCtrlS
+	KeyCtrlT
+	KeyCtrlU
+	KeyCtrlV
+	KeyCtrlW
+	KeyCtrlX
+	KeyCtrlY
+	KeyCtrlZ
+)
+
+const (
+	KeyF1 Key = -1 - iota
 	KeyF2
+	// TODO ...
 )
 
 var (
@@ -47,10 +77,17 @@ func addKey(k Key, tik int, ti *terminfo.Terminfo) error {
 }
 
 func decodeKey(bf []byte) (Key, int, bool) {
-	for i, key := range keys {
-		if bytes.HasPrefix(bf, key) {
-			return Key(i), len(key), true
+	b := bf[0]
+	if b == '\x1b' {
+		for i, key := range keys {
+			if bytes.HasPrefix(bf, key) {
+				return Key(-i - 1), len(key), true
+			}
 		}
+		return 0, 0, false
+	}
+	if k := Key(b); k >= KeyCtrlA && k <= KeyCtrlZ {
+		return k, 1, true
 	}
 	return 0, 0, false
 }

@@ -93,22 +93,20 @@ func decode(bf []byte) (Event, int, bool) {
 		return nil, 0, false
 	}
 
+	k, n, ok := decodeKey(bf)
+	if ok {
+		return k, n, true
+	}
+
+	n, ok = reportCursorPosition(bf)
+	if ok {
+		e, m, ok := decode(bf[n:])
+		return e, n + m, ok
+	}
+
 	r, n := utf8.DecodeRune(bf)
 	if r == utf8.RuneError {
 		panic("invalid utf8") // TODO ?
-	}
-
-	if r == '\x1b' {
-		k, n, ok := decodeKey(bf)
-		if ok {
-			return k, n, true
-		}
-
-		n, ok = reportCursorPosition(bf)
-		if ok {
-			e, m, ok := decode(bf[n:])
-			return e, n + m, ok
-		}
 	}
 	return r, n, true
 }

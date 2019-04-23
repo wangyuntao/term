@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/wangyuntao/term"
 )
@@ -13,17 +12,6 @@ func main() {
 		panic(err)
 	}
 	defer term.Cleanup()
-
-	go func() {
-		for {
-			row, col, err := term.CursorPosition()
-			if err != nil {
-				panic(err)
-			}
-			fmt.Println("cursor:", row, col)
-			time.Sleep(time.Second * 1)
-		}
-	}()
 
 	for {
 		e := term.PollEvent()
@@ -40,8 +28,7 @@ func main() {
 			fmt.Println("Key:", v)
 
 		case rune:
-			fmt.Printf("Rune: %c\n", v)
+			fmt.Printf("Rune: %d\n", v)
 		}
 	}
-
 }

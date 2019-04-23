@@ -39,6 +39,10 @@ const (
 )
 
 const (
+	KeyBackspace Key = 127
+)
+
+const (
 	KeyF1 Key = -1 - iota
 	KeyF2
 	// TODO ...
@@ -86,7 +90,9 @@ func decodeKey(bf []byte) (Key, int, bool) {
 		}
 		return 0, 0, false
 	}
-	if k := Key(b); k >= KeyCtrlA && k <= KeyCtrlZ {
+
+	k := Key(b)
+	if (k >= KeyCtrlA && k <= KeyCtrlZ) || k == KeyBackspace {
 		return k, 1, true
 	}
 	return 0, 0, false

@@ -1,16 +1,5 @@
 package term
 
-import (
-	"fmt"
-	"os"
-
-	"golang.org/x/sys/unix"
-)
-
-var (
-	ttyFd int
-)
-
 func Init() (err error) {
 	defer func() {
 		if err != nil {
@@ -18,7 +7,7 @@ func Init() (err error) {
 		}
 	}()
 
-	ttyFd, err = unix.Open("/dev/tty", unix.O_RDWR, 0)
+	err = initTty()
 	if err != nil {
 		return err
 	}
@@ -28,7 +17,7 @@ func Init() (err error) {
 		return err
 	}
 
-	err = initInput(ttyFd)
+	err = initInput(ttyIn)
 	if err != nil {
 		return err
 	}
@@ -37,16 +26,9 @@ func Init() (err error) {
 }
 
 func Cleanup() {
-	if ttyFd < 0 {
-		return
-	}
-
-	cleanupInput(ttyFd)
-
-	err := unix.Close(ttyFd)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "cleanup:", err)
-	}
+	cleanupInput(ttyIn)
+	cleanupWin()
+	cleanupTty()
 }
 
 func PollEvent() Event {

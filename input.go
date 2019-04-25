@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	inputQuit = make(chan int, 2)
+	inputQuitCh = make(chan int)
 )
 
 func initInput(fd int) error {
@@ -39,8 +39,7 @@ func initInput(fd int) error {
 }
 
 func cleanupInput(fd int) {
-	inputQuit <- 1
-	inputQuit <- 2
+	close(inputQuitCh)
 
 	err := exitRawMode(fd)
 	if err != nil {
@@ -82,7 +81,8 @@ func stdinRead(fd int) {
 				}
 				evtCh <- e
 			}
-		case <-inputQuit:
+		case <-inputQuitCh:
+			signal.Stop(sigioCh)
 			return
 		}
 	}

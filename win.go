@@ -18,8 +18,12 @@ func initWin() error {
 	return nil
 }
 
+func cleanupWin() {
+	signal.Stop(winResizeCh)
+}
+
 func WinSize() (int, int, error) {
-	w, err := unix.IoctlGetWinsize(ttyFd, unix.TIOCGWINSZ)
+	w, err := unix.IoctlGetWinsize(ttyIn, unix.TIOCGWINSZ)
 	if err != nil {
 		return 0, 0, err
 	}

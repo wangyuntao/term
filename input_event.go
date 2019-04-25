@@ -37,7 +37,7 @@ func inputEvt(evtCh <-chan Event) {
 				es = es[1:]
 			default:
 			}
-		case <-inputQuit:
+		case <-inputQuitCh:
 			return
 		}
 	}

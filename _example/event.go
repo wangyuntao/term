@@ -17,6 +17,12 @@ func main() {
 		e := term.PollEvent()
 
 		switch v := e.(type) {
+		case term.Key:
+			fmt.Println("Key:", v)
+
+		case term.Rune:
+			fmt.Printf("Rune: %d\n", v)
+
 		case term.WinResize:
 			row, col, err := term.WinSize()
 			if err != nil {
@@ -24,11 +30,6 @@ func main() {
 			}
 			fmt.Println("winResize:", row, col)
 
-		case term.Key:
-			fmt.Println("Key:", v)
-
-		case rune:
-			fmt.Printf("Rune: %d\n", v)
 		}
 	}
 }

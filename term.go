@@ -36,15 +36,3 @@ func Cleanup() {
 	cleanupWin()
 	cleanupTty()
 }
-
-func PollEvent() Event {
-	inputPrepare()
-
-	select {
-	case e := <-inputEvtCh:
-		return e
-
-	case <-winResizeCh:
-		return WinResize(0)
-	}
-}

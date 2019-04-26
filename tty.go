@@ -1,6 +1,7 @@
 package term
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -9,8 +10,10 @@ import (
 )
 
 var (
-	ttyIn  int
-	ttyOut *os.File
+	ttyIn        int
+	ttyOut       *os.File
+	ttyOutBuf    *bytes.Buffer
+	ttyOutWriter io.Writer
 )
 
 func initTty() error {
@@ -25,6 +28,7 @@ func initTty() error {
 		return err
 	}
 	ttyOut = out
+	ttyOutWriter = out
 
 	return nil
 }
@@ -45,18 +49,43 @@ func cleanupTty() {
 	}
 }
 
-func Writer() io.Writer {
-	return ttyOut
+func Print(a ...interface{}) error {
+	_, err := fmt.Fprint(ttyOutWriter, a...)
+	return err
 }
 
-func Print(a ...interface{}) (int, error) {
-	return fmt.Fprint(ttyOut, a...)
+func Println(a ...interface{}) error {
+	_, err := fmt.Fprintln(ttyOutWriter, a...)
+	return err
 }
 
-func Println(a ...interface{}) (int, error) {
-	return fmt.Fprintln(ttyOut, a...)
+func Printf(format string, a ...interface{}) error {
+	_, err := fmt.Fprintf(ttyOutWriter, format, a...)
+	return err
 }
 
-func Printf(format string, a ...interface{}) (int, error) {
-	return fmt.Fprintf(ttyOut, format, a...)
+func EnableWriteBuf() {
+	if ttyOutBuf == nil {
+		ttyOutBuf = bytes.NewBuffer(make([]byte, 0, 256))
+		ttyOutWriter = ttyOutBuf
+		ti.Writer(ttyOutWriter)
+	}
+}
+
+func DisableWriteBuf() {
+	if ttyOutBuf != nil {
+		ttyOutWriter = ttyOut
+		ti.Writer(ttyOutWriter)
+	}
+}
+
+func Flush() error {
+	if ttyOutBuf != nil {
+		_, err := ttyOut.Write(ttyOutBuf.Bytes())
+		if err != nil {
+			return err
+		}
+		ttyOutBuf.Reset()
+	}
+	return nil
 }

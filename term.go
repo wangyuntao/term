@@ -17,7 +17,12 @@ func Init() (err error) {
 		return err
 	}
 
-	err = initInput(ttyIn)
+	err = initTerminfo(ttyOut)
+	if err != nil {
+		return err
+	}
+
+	err = initInput(ttyIn, ti)
 	if err != nil {
 		return err
 	}
@@ -27,6 +32,7 @@ func Init() (err error) {
 
 func Cleanup() {
 	cleanupInput(ttyIn)
+	cleanupTerminfo()
 	cleanupWin()
 	cleanupTty()
 }

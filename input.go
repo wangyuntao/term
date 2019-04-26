@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"unicode/utf8"
 
+	"github.com/wangyuntao/terminfo"
 	"golang.org/x/sys/unix"
 )
 
@@ -13,8 +14,8 @@ var (
 	inputQuitCh = make(chan int)
 )
 
-func initInput(fd int) error {
-	err := initKey()
+func initInput(fd int, ti *terminfo.Terminfo) error {
+	err := initKey(ti)
 	if err != nil {
 		return err
 	}

@@ -53,13 +53,8 @@ var (
 	keys = make([][]byte, 0)
 )
 
-func initKey() error {
-	ti, err := terminfo.LoadEnv()
-	if err != nil {
-		return err
-	}
-
-	err = addKey(KeyF1, terminfo.KeyF1, ti)
+func initKey(ti *terminfo.Terminfo) error {
+	err := addKey(KeyF1, terminfo.KeyF1, ti)
 	if err != nil {
 		return err
 	}

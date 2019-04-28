@@ -23,6 +23,12 @@ func main() {
 		case term.Rune:
 			fmt.Printf("Rune: %d\n", v)
 
+		case term.AltKey:
+			fmt.Println("AltKey:", v)
+
+		case term.AltRune:
+			fmt.Printf("AltRune: %d\n", v)
+
 		case term.WinResize:
 			row, col, err := term.WinSize()
 			if err != nil {

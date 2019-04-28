@@ -94,15 +94,32 @@ func decode(bf []byte) (Event, int, bool) {
 		return nil, 0, false
 	}
 
+	n, ok := reportCursorPosition(bf)
+	if ok {
+		e, m, ok := decode(bf[n:])
+		return e, n + m, ok
+	}
+
 	k, n, ok := decodeKey(bf)
 	if ok {
 		return k, n, true
 	}
 
-	n, ok = reportCursorPosition(bf)
-	if ok {
-		e, m, ok := decode(bf[n:])
-		return e, n + m, ok
+	if bf[0] == '\x1b' {
+		e, n, ok := decode(bf[1:])
+		if !ok {
+			return KeyEsc, 1, true
+		}
+
+		n++
+		switch v := e.(type) {
+		case Key:
+			return AltKey(v), n, true
+		case Rune:
+			return AltRune(v), n, true
+		default:
+			panic("not implemented yet")
+		}
 	}
 
 	r, n := utf8.DecodeRune(bf)

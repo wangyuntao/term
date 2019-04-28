@@ -45,6 +45,7 @@ const (
 )
 
 const (
+	KeyEsc       = Key(27)
 	KeyBackspace = Key(127)
 	KeyEnter     = KeyCtrlM
 )
